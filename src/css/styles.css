@@ -10,3 +10,50 @@
   clip-path: inset(50%);
   margin: -1px;
 }
+.info {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.photo-card {
+  flex-basis: calc((100% - 60px) / 4);
+  flex-grow: 1;
+}
+.gallery {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+button {
+  border-radius: 4px;
+  background-color: rgb(168, 214, 216);
+  color: white;
+  font: 1em sans-serif;
+  border: none;
+  height: 40px;
+  margin-right: 50px;
+}
+input {
+  border-radius: 4px;
+  background-color: rgb(168, 214, 216);
+  color: white;
+  font: 1em sans-serif;
+  border: none;
+  height: 40px;
+  margin-right: 20px;
+  padding: 10px;
+}
+.load-more {
+  margin: auto;
+}
+::placeholder {
+  color: white;
+  font: 1em sans-serif;
+}

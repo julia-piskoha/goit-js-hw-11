@@ -4,8 +4,9 @@ export class LoadMoreBtn {
       'beforeend',
       `<button type="button" class="${classsName}">Load more</button>`
     );
-    this.loadMoreBtnRef = document.querySelector(`${classsName}`);
+    this.loadMoreBtnRef = document.querySelector(`.${classsName}`);
     this.loadMoreBtnRef.addEventListener('click', onLoadMoreClick);
+    this.hide();
   }
   hide() {
     this.loadMoreBtnRef.style.display = 'none';

@@ -2,14 +2,18 @@ import './css/styles.css';
 import { Notify } from 'notiflix';
 import { PicturesAPI } from './picturesAPI';
 import { LoadMoreBtn } from './loadMoreBtn';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const refs = {
   searchForm: document.querySelector('#search-form'),
   searchBtn: document.querySelector('.search-btn'),
-  loadMoreBtn: document.querySelector('.load-more'),
   imgGallery: document.querySelector('.gallery'),
+  loadMoreBtn: document.querySelector('.load-more'),
 };
 const pictureAPI = new PicturesAPI();
+const loadMoreBtn = new LoadMoreBtn('load-more', onLoadMoreBtn);
+const simpleLightbox = new SimpleLightbox('.gallery a');
 
 refs.searchForm.addEventListener('submit', onFormSubmit);
 
@@ -23,7 +27,18 @@ async function onFormSubmit(e) {
 
   try {
     const { hits, totalHits } = await pictureAPI.fetchAPI();
+    if (hits.length === 0) {
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      refs.imgGallery.innerHTML = '';
+      loadMoreBtn.hide();
+      return;
+    }
+    Notify.success(`Hooray! We found ${totalHits} images.`);
     renderPictures(hits);
+    simpleLightbox.refresh();
+    loadMoreBtn.show();
   } catch (error) {
     Notify.failure('Oops, something is wrong');
   }
@@ -41,7 +56,8 @@ function renderPictures(hits) {
         downloads,
       }) => {
         return `<div class="photo-card">
-     <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+       <a href="${largeImageURL}">
+     <img src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
      <div class="info">
      <p class="info-item">
       <b>Likes: </b>"${likes}"
@@ -61,4 +77,16 @@ function renderPictures(hits) {
     )
     .join('');
   refs.imgGallery.insertAdjacentHTML('beforeend', images);
+}
+async function onLoadMoreBtn() {
+  try {
+    const { hits } = await pictureAPI.fetchAPI();
+    if (hits.length < 40) {
+      loadMoreBtn.hide();
+      Notify.info("We're sorry, but you've reached the end of search results.");
+    }
+    renderPictures(hits);
+  } catch (error) {
+    Notify.failure('Oops, something is wrong');
+  }
 }
