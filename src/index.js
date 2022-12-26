@@ -22,13 +22,13 @@ refs.searchForm.addEventListener('submit', onFormSubmit);
 
 async function onFormSubmit(e) {
   e.preventDefault();
+  refs.imgGallery.innerHTML = '';
   pictureAPI.query = e.target.elements.searchQuery.value.trim();
-
-  if (pictureAPI.query === '') {
+  // pictureAPI.resetPage();
+  if (!pictureAPI.query) {
     Notify.warning('Enter some value');
     return;
   }
-  pictureAPI.resetPage();
 
   try {
     const { hits, totalHits } = await pictureAPI.fetchAPI();
@@ -86,20 +86,27 @@ function renderPictures(hits) {
 async function onLoadMoreBtn() {
   try {
     const { hits } = await pictureAPI.fetchAPI();
-    if (hits.length < 40) {
+    if (!hits) {
       Notify.info("We're sorry, but you've reached the end of search results.");
       loadMoreBtn.hide();
-    }
-
-    let restOfPhotos =
-      response.data.totalHits - pictureAPI.page * pictureAPI.per_page;
-    if (restOfPhotos <= 0) {
-      Notify.info("We're sorry, but you've reached the end of search results.");
       return;
     }
-    pictureAPI.resetPage();
+    if (hits.length < 40) {
+      Notify.info("We're sorry, but you've reached the end of search results.");
+      renderPictures(hits);
+      loadMoreBtn.hide();
+      simpleLightbox.refresh();
+      return;
+    }
+
     renderPictures(hits);
+    simpleLightbox.refresh();
   } catch (error) {
-    Notify.failure('Oops, something is wrong');
+    if (error?.response?.data?.includes('out of valid range')) {
+      Notify.info("We're sorry, but you've reached the end of search results.");
+      loadMoreBtn.hide();
+    } else {
+      Notify.failure('Oops, something is wrong');
+    }
   }
 }
