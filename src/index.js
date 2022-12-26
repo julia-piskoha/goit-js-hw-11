@@ -13,17 +13,22 @@ const refs = {
 };
 const pictureAPI = new PicturesAPI();
 const loadMoreBtn = new LoadMoreBtn('load-more', onLoadMoreBtn);
-const simpleLightbox = new SimpleLightbox('.gallery a');
+const simpleLightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 refs.searchForm.addEventListener('submit', onFormSubmit);
 
 async function onFormSubmit(e) {
   e.preventDefault();
   pictureAPI.query = e.target.elements.searchQuery.value.trim();
+
   if (pictureAPI.query === '') {
     Notify.warning('Enter some value');
     return;
   }
+  pictureAPI.resetPage();
 
   try {
     const { hits, totalHits } = await pictureAPI.fetchAPI();
@@ -82,9 +87,17 @@ async function onLoadMoreBtn() {
   try {
     const { hits } = await pictureAPI.fetchAPI();
     if (hits.length < 40) {
-      loadMoreBtn.hide();
       Notify.info("We're sorry, but you've reached the end of search results.");
+      loadMoreBtn.hide();
     }
+
+    let restOfPhotos =
+      response.data.totalHits - pictureAPI.page * pictureAPI.per_page;
+    if (restOfPhotos <= 0) {
+      Notify.info("We're sorry, but you've reached the end of search results.");
+      return;
+    }
+    pictureAPI.resetPage();
     renderPictures(hits);
   } catch (error) {
     Notify.failure('Oops, something is wrong');
