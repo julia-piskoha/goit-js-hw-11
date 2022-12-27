@@ -24,7 +24,7 @@ async function onFormSubmit(e) {
   e.preventDefault();
   refs.imgGallery.innerHTML = '';
   pictureAPI.query = e.target.elements.searchQuery.value.trim();
-  // pictureAPI.resetPage();
+  pictureAPI.resetPage();
   if (!pictureAPI.query) {
     Notify.warning('Enter some value');
     return;
